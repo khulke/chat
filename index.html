@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Khulke chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Firebase Firechat Documentation">
+  <meta name="author" content="Rob DiMarco, Engineer @ Firebase, rob@firebase.com">
+  <meta name="description" content="Open source, real-time chat built on Firebase." />
+
+  <link rel="stylesheet" href="./css/pygments-borland.css" />
+  <link rel="stylesheet" href="./css/styles.css" />
+  <link href="/images/favicon.ico" rel="shortcut icon" />
+</head>
+
+<body class="home-page">
+
+  <header id="top-content">
+    <div class="header-title">
+      <div id="top-shadow"></div>
+      <div class="container text-center">
+        <div class="header-links" class="text-right">
+          <a href="#" class="selected">Home</a>
+          <a href="./docs/">Documentation</a>
+        </div>
+        <div id="home-title"><span class="strong">Khulke </span><span class="satisfy">chat</span></div>
+        <div id="home-subtitle">To resolve problems with participation and transparency</div>
+      </div>
+    </div>
+	
+  <div id="firechat-wrapper">
+     <button onclick="login('google');">Login with Google Account</button>
+  </div>
+	
+  <p>  </p>
+	
+  <div id="firechat-logout">
+     <button onclick="logout('google');">Logout</button>
+  </div>
+    
+  </header>
+  
+  <footer class="footer">
+    <div class="container text-center">
+      <div id="footer-links">
+        <a href="docs/">Docs</a>
+        <a href="https://github.com/firebase/firechat/issues" target="_blank">Issues</a>
+        <a href="mailto:firechat@firebase.com?subject=[Firechat Question]" target="_blank">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- jQuery -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/6.1.1/firebase.js"></script>
+
+  <!-- Firechat -->
+  <link rel="stylesheet" href="/src/js/firechat.min.css" />  
+  <script src="/src/js/firechat.min.js"></script>
+  <script src="/src/js/firechat-ui.js"></script>
+  <script src="/src/js/firechat.js"></script>
+
+  <script>
+	// web app's Firebase configuration
+    var firebaseConfig = {
+		apiKey: "AIzaSyAt3tP7KSSLohjnmf1kKfRFktyNTM7Wdw4",
+		authDomain: "khulke-chat.firebaseapp.com",
+		databaseURL: "https://khulke-chat.firebaseio.com",
+		projectId: "khulke-chat",
+		storageBucket: "khulke-chat.appspot.com",
+		messagingSenderId: "788471879399",
+		appId: "1:788471879399:web:093d49e7f9cf9376"		
+    };
+		
+	// Initialize Firebase	
+    firebase.initializeApp(firebaseConfig);
+		
+    function login() {
+	  
+      // Log the user in via google
+      var provider = new firebase.auth.GoogleAuthProvider();
+	  	  
+        // Log the user in via google
+		firebase.auth().signInWithPopup(provider).then(function(result) {
+		  // This gives you a Google Access Token. You can use it to access the Google API.
+		  var token = result.credential.accessToken;
+		  // The signed-in user info.
+		  var user = result.user;
+		  		  
+		  // ...
+		}).catch(function(error) {
+		  // Handle Errors here.
+		  var errorCode = error.code;
+		  var errorMessage = error.message;
+		  // The email of the user's account used.
+		  var email = error.email;
+		  // The firebase.auth.AuthCredential type that was used.
+		  var credential = error.credential;
+		  // ...
+		  console.log("Error authenticating user:", error);
+		});
+    }
+
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        var userId = user.uid,
+            username = user.displayName;
+
+		console.log('userId = ' + userId);
+		console.log('username = ' + username);
+		
+		initChat(user);
+      }
+    });
+	
+    function initChat(user) {
+        // Get a Firebase Database ref
+        var chatRef = firebase.database().ref("chat");
+		 		 
+        // Create a Firechat instance
+        var chat = new FirechatUI(chatRef, document.getElementById("firechat-wrapper"));
+
+        // Set the Firechat user
+        chat.setUser(user.uid, user.displayName);
+		//chat.resumeSession();
+    }
+	  
+    function logout() {
+      firebase.auth().signOut().then(function() {
+        location.reload();
+      }).catch(function(error) {
+        console.log("Error signing user out:", error);
+      });
+    }
+  </script>
+  	
+</body>
+</html>
